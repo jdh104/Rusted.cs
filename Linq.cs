@@ -7,8 +7,11 @@ namespace Rusted
 {
     public static class Linq
     {
+        
         public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.First() : def;
+        
         public static TSource FirstOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback) => @this.Any() ? @this.First() : fallback();
+        
         public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, TSource def)
         {
             foreach (TSource element in @this)
@@ -20,6 +23,7 @@ namespace Rusted
             }
             return def;
         }
+        
         public static TSource FirstOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, Func<TSource> fallback)
         {
             foreach (TSource element in @this)
@@ -31,8 +35,11 @@ namespace Rusted
             }
             return fallback();
         }
+        
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.Last() : def;
+        
         public static TSource LastOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback) => @this.Any() ? @this.Last() : fallback();
+        
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, TSource def)
         {
             switch (@this)
@@ -53,6 +60,7 @@ namespace Rusted
                     return result;
             }
         }
+        
         public static TSource LastOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, Func<TSource> fallback)
         {
             switch (@this)
