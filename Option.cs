@@ -12,6 +12,19 @@ namespace Rusted
         
         public static Option<U> Wrap<U>(U value) => value == null ? new Option<U>() : new Option<U>(value);
 
+        public static Option<U> Wrap<U>(U? value)
+            where U: struct
+        {
+            if (!value.HasValue)
+            {
+                return new Option<U>();
+            }
+            else
+            {
+                return new Option<U>(value.Value);
+            }
+        }
+
         public static Result<Option<T>, E> Transpose<T, E>(this Option<Result<T, E>> @this)
             where E: Exception
         {
