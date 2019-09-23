@@ -12,19 +12,6 @@ namespace Rusted
         
         public static Option<U> Wrap<U>(U value) => value == null ? new Option<U>() : new Option<U>(value);
 
-        public static Option<U> Wrap<U>(U? nullable)
-            where U: struct
-        {
-            if (!nullable.HasValue)
-            {
-                return new Option<U>();
-            }
-            else
-            {
-                return new Option<U>(nullable.Value);
-            }
-        }
-
         public static Result<Option<T>, E> Transpose<T, E>(this Option<Result<T, E>> @this)
             where E: Exception
         {
@@ -47,22 +34,9 @@ namespace Rusted
 
         public static bool Equals(this Option<string> @this, string other, StringComparison stringComparison)
             => (@this.IsNone() && other == null) || (@this.IsSome() && @this.wrapped.Equals(other, stringComparison));
-
-        public static T? ToNullable<T>(this Option<T> @this)
-            where T: struct
-        {
-            if (@this.IsNone())
-            {
-                return null;
-            }
-            else
-            {
-                return @this.wrapped;
-            }
-        }
     }
     
-    public class Option<T>
+    public class Option<T> : IEquatable<Option<T>>, IEquatable<T>
     {
         internal bool some;
         internal T wrapped;
