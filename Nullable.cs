@@ -4,6 +4,12 @@ namespace Rusted
 {
     public static class Nullable
     {
+        public static Option<T> ToOption<T>(this T? @this)
+            where T: struct
+        {
+            return Option.Wrap(@this);
+        }
+
         public static U? And<T, U>(this T? @this, U? optb)
             where T: struct
             where U: struct
