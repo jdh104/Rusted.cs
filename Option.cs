@@ -6,7 +6,7 @@ namespace Rusted
     {
         public static Option<object> None() => new Option<object>();
         
-        internal static Option<U> None<U>() => new Option<U>();
+        public static Option<U> None<U>() => new Option<U>();
         
         public static Option<U> Some<U>(U value) => value == null ? throw new ArgumentNullException("Argument is null") : new Option<U>(value);
         
