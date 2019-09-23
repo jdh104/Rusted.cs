@@ -28,6 +28,12 @@ namespace Rusted
                 return new Result<Option<T>, E>(@this.wrapped.Ok());
             }
         }
+
+        public static bool Equals(this Option<string> @this, Option<string> other, StringComparison stringComparison)
+            => (@this.IsNone() && other.IsNone()) || (@this.IsSome() && @this.wrapped.Equals(other.wrapped, stringComparison));
+
+        public static bool Equals(this Option<string> @this, string other, StringComparison stringComparison)
+            => (@this.IsNone() && other == null) || (@this.IsSome() && @this.wrapped.Equals(other, stringComparison));
     }
     
     public class Option<T>
@@ -45,6 +51,10 @@ namespace Rusted
             this.some = true;
             this.wrapped = val;
         }
+
+        public bool Equals(Option<T> other) => this.wrapped.Equals(other.wrapped);
+
+        public bool Equals(T other) => this.wrapped.Equals(other);
         
         public Option<U> And<U>(Option<U> optb) => some ? optb : new Option<U>();
         

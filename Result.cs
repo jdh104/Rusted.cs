@@ -7,6 +7,18 @@ namespace Rusted
         
         public static Result<T, E> Err<T, E>(E err) where E: Exception => new Result<T, E>(err);
         public static Result<T, E> Ok<T, E>(T val) where E: Exception => new Result<T, E>(val);
+
+        public static bool Equals<E>(this Result<string, E> @this, Result<string, E> other, StringComparison stringComparison)
+            where E: Exception
+        {
+            return (@this.IsErr() && other.IsErr()) || (@this.IsOk() && @this.wrapped.Equals(other.wrapped, stringComparison));
+        }
+
+        public static bool Equals<E>(this Result<string, E> @this, string other, StringComparison stringComparison)
+            where E : Exception
+        {
+            return @this.IsOk() && @this.wrapped.Equals(other, stringComparison);
+        }
     }
     
     public class Result<T, E> where E: Exception
@@ -26,7 +38,13 @@ namespace Rusted
             this.ok = false;
             this.error = err;
         }
-        
+
+        public bool Equals(Result<T, E> other)
+            => this.ok && this.wrapped.Equals(other.wrapped);
+
+        public bool Equals(T other)
+            => this.ok && this.wrapped.Equals(other);
+
         public Result<U, E> And<U>(Result<U, E> res) => ok ? res : new Result<U, E>(error);
         
         public Result<U, E> AndThen<U>(Func<Result<U, E>> op) => ok ? op() : new Result<U, E>(error);
