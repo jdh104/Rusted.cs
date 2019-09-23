@@ -88,5 +88,11 @@ namespace Rusted
         }
 
         public static bool AnyAndAll<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate) => @this.Any() && @this.All(predicate);
+
+        public static IEnumerable<Option<T>> Somes<T>(this IEnumerable<Option<T>> @this)
+            => @this.Where(option => option.IsSome());
+
+        public static IEnumerable<T> UnwrapAll<T>(this IEnumerable<Option<T>> @this)
+            => @this.Select(option => option.Unwrap());
     }
 }

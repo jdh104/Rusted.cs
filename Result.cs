@@ -21,7 +21,7 @@ namespace Rusted
         }
     }
     
-    public class Result<T, E> where E: Exception
+    public class Result<T, E> : IEquatable<Result<T, E>>, IEquatable<T> where E: Exception
     {
         internal T wrapped;
         internal E error;
@@ -41,6 +41,12 @@ namespace Rusted
 
         public bool Equals(Result<T, E> other)
             => this.ok && this.wrapped.Equals(other.wrapped);
+
+        public bool Equals<X>(Result<T, X> other)
+            where X : Exception
+        {
+            return this.ok && this.wrapped.Equals(other.wrapped);
+        }
 
         public bool Equals(T other)
             => this.ok && this.wrapped.Equals(other);
