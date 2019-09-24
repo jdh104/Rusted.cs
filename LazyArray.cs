@@ -8,6 +8,9 @@ namespace Rusted
 {
     public class LazyArray<T> : IEnumerable<T>
     {
+        public static LazyArray<T> Empty()
+            => new LazyArray<T>(Enumerable.Empty<T>());
+
         readonly Lazy<T[]> Source;
 
         public T this[int index]
