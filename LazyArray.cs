@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using System.Linq;
 
-namespace RustedCS
+namespace Rusted
 {
     public class LazyArray<T> : IEnumerable<T>
     {
@@ -25,7 +25,11 @@ namespace RustedCS
             => Source.Value.CopyTo(array, index);
 
         public IEnumerator<T> GetEnumerator()
-            => (IEnumerator<T>)Source.Value.GetEnumerator();
+        {
+            // This is done to avoid explicit casting
+            IEnumerable<T> enumerable = Source.Value;
+            return enumerable.GetEnumerator();
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
             => Source.Value.GetEnumerator();
