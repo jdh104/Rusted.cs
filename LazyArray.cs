@@ -41,7 +41,7 @@ namespace RustedCS
         }
     }
 
-    public static class LazyArrayExtenstions
+    public static class LazyArrayExtensions
     {
         public static LazyArray<T> ToLazyArray<T>(this IEnumerable<T> @this)
             => new LazyArray<T>(@this);
