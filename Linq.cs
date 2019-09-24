@@ -94,5 +94,8 @@ namespace Rusted
 
         public static IEnumerable<T> UnwrapAll<T>(this IEnumerable<Option<T>> @this)
             => @this.Select(option => option.Unwrap());
+
+        public static bool Contains(this IEnumerable<string> @this, string query, StringComparison stringComparison)
+            => @this.Any(str => str.Equals(query, stringComparison));
     }
 }
