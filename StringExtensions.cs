@@ -5,27 +5,6 @@ namespace Rusted
 {
     public static class StringExtensions
     {
-        ///// <summary>
-        ///// Returns a value indicating whether a specified substring occurs within this string. A parameter specifies the type of search to use for the specified string.
-        ///// </summary>
-        ///// <param name="this"></param>
-        ///// <param name="query"></param>
-        ///// <param name="stringComparison"></param>
-        ///// <returns></returns>
-        //public static bool Contains(this string @this, string query, StringComparison stringComparison)
-        //    => @this.IndexOf(query, stringComparison) >= 0;
-
-        ///// <summary>
-        ///// Returns a value indicating whether a specified substring occurs within this string. Parameters specify the starting search position in the current string and the type of search to use for the specified string.
-        ///// </summary>
-        ///// <param name="this"></param>
-        ///// <param name="query"></param>
-        ///// <param name="startIndex"></param>
-        ///// <param name="stringComparison"></param>
-        ///// <returns></returns>
-        //public static bool Contains(this string @this, string query, int startIndex, StringComparison stringComparison)
-        //    => @this.IndexOf(query, startIndex, stringComparison) >= 0;
-
         /// <summary>
         /// Returns a value indicating whether a specified substring occurs within this string. Parameters specify the starting search position in the current string, the number of characters in the current string to search, and the type of search to use for the specified string.
         /// </summary>
