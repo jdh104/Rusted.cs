@@ -10,7 +10,7 @@ namespace Rusted
         public static Option<object> None() => new Option<object>();
         
         /// <summary>
-        /// Initialize a Generic None.
+        /// Initialize a generic None.
         /// </summary>
         public static Option<U> None<U>() => new Option<U>();
         
@@ -117,6 +117,13 @@ namespace Rusted
         /// </summary>
         /// <exception cref="Exception">Thrown if the value is a None with a custom error message provided by msg.</exception>
         public T Expect(string msg) => some ? wrapped : throw new Exception(msg);
+
+        /// <summary>
+        /// <para>Unwraps an option, yielding the content of a Some.</para>
+        /// <para>Throws an exception if the option is a None.</para>
+        /// </summary>
+        /// <exception cref="Exception">Thrown if the value is a None with a custom error message provided by msg.</exception>
+        public T ExpectWith(Func<string> f) => some ? wrapped : throw new Exception(f());
 
         /// <summary>
         /// <para>
