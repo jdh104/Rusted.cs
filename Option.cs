@@ -49,15 +49,10 @@ namespace Rusted
             => (@this.IsNone() && other == null) || (@this.IsSome() && @this.wrapped.Equals(other, stringComparison));
     }
     
-    public class Option<T> : IEquatable<Option<T>>, IEquatable<T>
+    public struct Option<T> : IEquatable<Option<T>>, IEquatable<T>
     {
         internal bool some;
         internal T wrapped;
-        
-        internal Option()
-        {
-            this.some = false;
-        }
         
         internal Option(T val)
         {
@@ -159,7 +154,7 @@ namespace Rusted
                 {
                     this.some = false;
                     T old = this.wrapped;
-                    this.wrapped = default(T);
+                    this.wrapped = default;
                     return new Option<T>(old);
                 }
             }
@@ -187,7 +182,7 @@ namespace Rusted
             {
                 this.some = false;
                 T old = this.wrapped;
-                this.wrapped = default(T);
+                this.wrapped = default;
                 return new Option<T>(old);
             }
         }
