@@ -39,17 +39,31 @@ namespace Rusted
 
         public LazyArray(IEnumerable<T> source)
         {
-            Source = new Lazy<T[]>(() => source.ToArray());
+            Source = new Lazy<T[]>(() => source == null ? new T[0] : source.ToArray());
         }
 
         public LazyArray(Lazy<T[]> source)
         {
             Source = source;
         }
+
+        internal LazyArray(Func<T[]> generator)
+        {
+            Source = new Lazy<T[]>(generator);
+        }
     }
 
-    public static class LazyArrayExtensions
+    public static class LazyArray
     {
+        public static LazyArray<T> Empty<T>()
+            => new LazyArray<T>(Enumerable.Empty<T>());
+
+        public static LazyArray<T> From<T>(Func<IEnumerable<T>> generator)
+            => new LazyArray<T>(() => generator().ToArray());
+
+        public static LazyArray<T> From<T>(Func<T[]> generator)
+            => new LazyArray<T>(generator);
+
         public static LazyArray<T> ToLazyArray<T>(this IEnumerable<T> @this)
             => new LazyArray<T>(@this);
     }
