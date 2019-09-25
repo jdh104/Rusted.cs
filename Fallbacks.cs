@@ -39,5 +39,31 @@ namespace Rusted
                 return Option.Some(@this);
             }
         }
+
+        public static T AtLeast<T>(this T @this, T other)
+            where T: IComparable<T>
+        {
+            switch (@this.CompareTo(other))
+            {
+                case -1:
+                    return other;
+
+                default:
+                    return @this;
+            }
+        }
+
+        public static T AtMost<T>(this T @this, T other)
+            where T: IComparable<T>
+        {
+            switch (@this.CompareTo(other))
+            {
+                case 1:
+                    return other;
+
+                default:
+                    return @this;
+            }
+        }
     }
 }
