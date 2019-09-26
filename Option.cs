@@ -76,6 +76,8 @@ namespace Rusted
     
     public struct Option<T> : IEquatable<Option<T>>, IEquatable<T>
     {
+        public static implicit operator Option<T>(T t) => Option.Wrap(t);
+
         internal bool some;
         internal T wrapped;
         
