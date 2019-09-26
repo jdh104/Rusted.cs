@@ -45,7 +45,7 @@ namespace Rusted
         /// <para>None will be mapped to Ok(None). Some(Ok(_)) and Some(Err(_)) will be mapped to Ok(Some(_)) and Err(_), respectively.</para>
         /// </summary>
         public static Result<Option<T>, E> Transpose<T, E>(this Option<Result<T, E>> @this)
-            where E: Exception
+            where E: Exception, new()
         {
             if (!@this.some)
             {
@@ -239,12 +239,34 @@ namespace Rusted
         /// <para>Transforms the Option&lt;T&gt; into a Result&lt;T, E&gt;, mapping Some(v) to Ok(v) and None to Err(err).</para>
         /// <para>Arguments passed to OkOr are eagerly evaluated; if you are passing the result of a function call, it is recommended to use <see cref="OkOrElse{E}(Func{E})"/>, which is lazily evaluated.</para>
         /// </summary>
-        public Result<T, E> OkOr<E>(E err) where E: Exception => some ? new Result<T, E>(wrapped) : new Result<T, E>(err);
+        public Result<T, E> OkOr<E>(E err) 
+            where E: Exception, new()
+        {
+            if (some)
+            {
+                return new Result<T, E>(wrapped);
+            }
+            else
+            {
+                return new Result<T, E>(err);
+            }
+        }
 
         /// <summary>
         /// Transforms the Option&lt;T&gt; into a Result&lt;T, E&gt;, mapping Some(v) to Ok(v) and None to Err(err()).
         /// </summary>
-        public Result<T, E> OkOrElse<E>(Func<E> err) where E: Exception => some ? new Result<T, E>(wrapped) : new Result<T, E>(err());
+        public Result<T, E> OkOrElse<E>(Func<E> err)
+            where E: Exception, new()
+        {
+            if (some)
+            {
+                return new Result<T, E>(wrapped);
+            }
+            else
+            {
+                return new Result<T, E>(err());
+            }
+        }
 
         /// <summary>
         /// Replaces the actual value in the option by the value given in parameter, returning the old value if present, leaving a Some in its place.

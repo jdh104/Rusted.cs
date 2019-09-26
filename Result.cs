@@ -4,25 +4,47 @@ namespace Rusted
 {
     public static class Result
     {
-        
-        public static Result<T, E> Err<T, E>(E err) where E: Exception => new Result<T, E>(err);
         public static Result<T, Exception> Err<T>(string err) => new Result<T, Exception>(new Exception(err));
-        public static Result<T, E> Ok<T, E>(T val) where E: Exception => new Result<T, E>(val);
+
+        public static Result<T, E> Err<T, E>(E err)
+            where E: Exception, new()
+        {
+            return new Result<T, E>(err);
+        }
+
+        public static Result<T, E> Ok<T, E>(T val) 
+            where E: Exception, new()
+        {
+            return new Result<T, E>(val);
+        }
+
+        public static Result<T, E> Wrap<T, E>(T val)
+            where E: Exception, new()
+        {
+            if (val == null)
+            {
+                return new Result<T, E>(val);
+            }
+            else
+            {
+                return new Result<T, E>(new E());
+            }
+        }
 
         public static bool Equals<E>(this Result<string, E> @this, Result<string, E> other, StringComparison stringComparison)
-            where E: Exception
+            where E: Exception, new()
         {
             return (@this.IsErr() && other.IsErr()) || (@this.IsOk() && @this.wrapped.Equals(other.wrapped, stringComparison));
         }
 
         public static bool Equals<E>(this Result<string, E> @this, string other, StringComparison stringComparison)
-            where E : Exception
+            where E : Exception, new()
         {
             return @this.IsOk() && @this.wrapped.Equals(other, stringComparison);
         }
     }
 
-    public class Result<T, E> : IEquatable<Result<T, E>>, IEquatable<T> where E: Exception
+    public class Result<T, E> : IEquatable<Result<T, E>>, IEquatable<T> where E: Exception, new()
     {
         internal T wrapped;
         internal E error;
@@ -44,7 +66,7 @@ namespace Rusted
             => this.ok && this.wrapped.Equals(other.wrapped);
 
         public bool Equals<X>(Result<T, X> other)
-            where X : Exception
+            where X : Exception, new()
         {
             return this.ok && this.wrapped.Equals(other.wrapped);
         }
@@ -72,7 +94,11 @@ namespace Rusted
         
         public Result<U, E> MapOrElse<U>(Func<E, U> fallback, Func<T, U> map) => ok ? new Result<U, E>(map(wrapped)) : new Result<U, E>(fallback(error));
         
-        public Result<T, E2> MapErr<E2>(Func<E, E2> op) where E2: Exception => ok ? new Result<T, E2>(wrapped) : new Result<T, E2>(op(error));
+        public Result<T, E2> MapErr<E2>(Func<E, E2> op) 
+            where E2: Exception, new()
+        {
+            return ok ? new Result<T, E2>(wrapped) : new Result<T, E2>(op(error));
+        }
         
         public Option<T> Ok() => ok ? new Option<T>(wrapped) : new Option<T>();
         
