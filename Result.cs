@@ -62,7 +62,7 @@ namespace Rusted
         internal Result(E err)
         {
             this.ok = false;
-            this.error = err;
+            this.error = err ?? new E();
         }
 
         public bool Equals(Result<T, E> other)
