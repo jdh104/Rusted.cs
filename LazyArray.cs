@@ -71,6 +71,15 @@ namespace Rusted
             => new LazyArray<T>(generator);
 
         public static LazyArray<T> ToLazyArray<T>(this IEnumerable<T> @this)
-            => new LazyArray<T>(@this);
+        {
+            switch (@this)
+            {
+                case LazyArray<T> lazy:
+                    return lazy;
+
+                default:
+                    return new LazyArray<T>(@this);
+            }
+        }
     }
 }
