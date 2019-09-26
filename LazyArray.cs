@@ -13,6 +13,12 @@ namespace Rusted
 
         readonly Lazy<T[]> Source;
 
+        /// <summary>
+        /// Returns a string that represents the current LazyArray.
+        /// </summary>
+        /// <returns>A string that represents the current LazyArray.</returns>
+        public override string ToString() => Source.Value.ToString();
+
         public T this[int index]
         {
             get => Source.Value[index];

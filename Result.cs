@@ -54,6 +54,12 @@ namespace Rusted
         public bool Equals(T other)
             => this.ok && this.wrapped.Equals(other);
 
+        /// <summary>
+        /// Returns a string that represents the current Result.
+        /// </summary>
+        /// <returns>A string that represents the current Result.</returns>
+        public override string ToString() => ok ? $"Ok({wrapped.ToString()})" : $"Err({error})";
+
         public Result<U> And<U>(Result<U> res) => ok ? res : new Result<U>(error);
 
         public Result<U> AndThen<U>(Func<Result<U>> op) => ok ? op() : new Result<U>(error);
@@ -109,6 +115,12 @@ namespace Rusted
 
         public bool Equals(T other)
             => this.ok && this.wrapped.Equals(other);
+
+        /// <summary>
+        /// Returns a string that represents the current Result.
+        /// </summary>
+        /// <returns>A string that represents the current Result.</returns>
+        public override string ToString() => ok ? $"Ok({wrapped.ToString()})" : $"Err({error.Message})";
 
         public Result<U, E> And<U>(Result<U, E> res) => ok ? res : new Result<U, E>(error);
         
