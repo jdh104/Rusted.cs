@@ -104,7 +104,7 @@ namespace Rusted
         /// Returns a string that represents the current Option.
         /// </summary>
         /// <returns>A string that represents the current Option.</returns>
-        public override string ToString() => some ? $"Some({wrapped.ToString()}" : "None";
+        public override string ToString() => some ? $"Some({wrapped.ToString()})" : "None";
 
         /// <summary>
         /// Returns None if the option is None, otherwise returns optb
