@@ -50,13 +50,13 @@ namespace Rusted
         internal E error;
         internal bool ok;
         
-        public Result(T val)
+        internal Result(T val)
         {
             this.ok = true;
             this.wrapped = val;
         }
         
-        public Result(E err)
+        internal Result(E err)
         {
             this.ok = false;
             this.error = err;
