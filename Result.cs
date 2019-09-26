@@ -46,7 +46,7 @@ namespace Rusted
 
     public class Result<T, E> : IEquatable<Result<T, E>>, IEquatable<T> where E: Exception, new()
     {
-        public static implicit operator Result<T, E>(T t) => Result.Ok<T, E>(t);
+        public static implicit operator Result<T, E>(T t) => Result.Wrap<T, E>(t);
         public static implicit operator Result<T, E>(E e) => Result.Err<T, E>(e);
 
         internal T wrapped;
