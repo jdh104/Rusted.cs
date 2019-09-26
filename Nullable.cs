@@ -62,20 +62,17 @@ namespace Rusted
 
         public static Result<T, E> OkOr<T, E>(this T? @this, E err) 
             where T: struct
-            where E: Exception
+            where E: Exception, new()
         {
             return @this.HasValue ? new Result<T, E>(@this.Value) : new Result<T, E>(err);
         }
 
         public static Result<T, E> OkOrElse<T, E>(this T? @this, Func<E> err) 
             where T: struct
-            where E: Exception
+            where E: Exception, new()
         {
             return @this.HasValue ? new Result<T, E>(@this.Value) : new Result<T, E>(err());
         }
-
-        // public static T? Replace<T>(this T? @this, T val) where T: struct { }
-        // public static T? Take<T>(this T? @this) where T: struct { }
 
         public static T Unwrap<T>(this T? @this) 
             where T: struct
