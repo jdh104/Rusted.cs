@@ -7,6 +7,38 @@ namespace Rusted
 {
     public static class Linq
     {
+
+        public static IEnumerable<string> Distinct(this IEnumerable<string> @this, StringComparison comparisonStrategy = StringComparison.InvariantCulture)
+        {
+            if (@this == null)
+            {
+                throw new ArgumentNullException();
+            }
+            else
+            {
+                List<string> lookup;
+
+                if (@this is IList<string> list)
+                {
+                    lookup = new List<string>(list.Count);
+                }
+                else
+                {
+                    lookup = new List<string>();
+                }
+
+                foreach (string element in @this)
+                {
+                    if (!lookup.Contains(element, comparisonStrategy))
+                    {
+                        yield return element;
+                        lookup.Add(element);
+                    }
+                }
+
+                yield break;
+            }
+        }
         
         public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.First() : def;
         
