@@ -8,7 +8,7 @@ namespace Rusted
     public static class Linq
     {
 
-        public static IEnumerable<string> Distinct(this IEnumerable<string> @this, StringComparison comparisonStrategy = StringComparison.InvariantCulture)
+        public static IEnumerable<string> Distinct(this IEnumerable<string> @this, StringComparison comparisonStrategy)
         {
             if (@this == null)
             {
