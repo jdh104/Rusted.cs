@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Linq;
 
 namespace Rusted
 {
@@ -38,5 +39,24 @@ namespace Rusted
         /// <returns>An array of strings no larger than the size of the given maxCount</returns>
         public static string[] Split(this string @this, string separator, int maxCount = int.MaxValue, StringSplitOptions options = StringSplitOptions.None)
             => @this.Split(new string[] { separator }, maxCount, options);
+
+        /// <summary>
+        /// Check if this string starts with any of a number of arguments.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static bool StartsWithAny(this string @this, params string[] query)
+            => query.Any(str => @this.StartsWith(str));
+
+        /// <summary>
+        /// Check if this string starts with any of a number of arguments. A parameter can be used to specify what type of StringComparison to use.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="comparison"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static bool StartsWithAny(this string @this, StringComparison comparison, params string[] query)
+            => query.Any(str => @this.StartsWith(str, comparison));
     }
 }
