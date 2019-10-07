@@ -1,9 +1,17 @@
+
 using System;
+using System.Linq;
 
 namespace Rusted
 {
-    public static class Fallbacks
+    public static class ObjectExtensions
     {
+        public static bool EqualsAny<T, U>(this T @this, params U[] others)
+            where T: IEquatable<U>
+        {
+            return others.Any(other => @this.Equals(other));
+        }
+
         public static T Or<T>(this T @this, T alt)
         {
             if (@this.Equals(default(T)))
