@@ -43,6 +43,9 @@ namespace Rusted
         public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.First() : def;
         
         public static TSource FirstOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback) => @this.Any() ? @this.First() : fallback();
+
+        public static Option<TSource> FirstOrNone<TSource>(this IEnumerable<TSource> @this)
+            => @this.Any() ? Option.Some(@this.First()) : Option.None<TSource>();
         
         public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, TSource def)
         {
@@ -55,7 +58,7 @@ namespace Rusted
             }
             return def;
         }
-        
+
         public static TSource FirstOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, Func<TSource> fallback)
         {
             foreach (TSource element in @this)
@@ -67,7 +70,19 @@ namespace Rusted
             }
             return fallback();
         }
-        
+
+        public static Option<TSource> FirstOrNone<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate)
+        {
+            foreach (TSource element in @this)
+            {
+                if (predicate(element))
+                {
+                    return Option.Some(element);
+                }
+            }
+            return Option.None<TSource>();
+        }
+
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.Last() : def;
         
         public static TSource LastOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback) => @this.Any() ? @this.Last() : fallback();
