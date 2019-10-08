@@ -86,6 +86,9 @@ namespace Rusted
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.Last() : def;
         
         public static TSource LastOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback) => @this.Any() ? @this.Last() : fallback();
+
+        public static Option<TSource> LastOrNone<TSource>(this IEnumerable<TSource> @this)
+            => @this.Any() ? Option.Some(@this.Last()) : Option.None<TSource>();
         
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, TSource def)
         {
@@ -107,7 +110,7 @@ namespace Rusted
                     return result;
             }
         }
-        
+
         public static TSource LastOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, Func<TSource> fallback)
         {
             switch (@this)
@@ -118,19 +121,45 @@ namespace Rusted
                         if (predicate(list[i])) return list[i];
                     }
                     return fallback();
-                    
+
                 default:
-                    TSource result = default(TSource);
+                    TSource result = default;
                     bool found = false;
                     foreach (TSource element in @this)
                     {
-                        if (predicate(element)) 
+                        if (predicate(element))
                         {
                             result = element;
                             found = true;
                         }
                     }
                     return found ? result : fallback();
+            }
+        }
+
+        public static Option<TSource> LastOrNone<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate)
+        {
+            switch (@this)
+            {
+                case IList<TSource> list:
+                    for (int i = list.Count - 1; i >= 0; i--)
+                    {
+                        if (predicate(list[i])) return list[i];
+                    }
+                    return Option.None<TSource>();
+
+                default:
+                    TSource result = default;
+                    bool found = false;
+                    foreach (TSource element in @this)
+                    {
+                        if (predicate(element))
+                        {
+                            result = element;
+                            found = true;
+                        }
+                    }
+                    return found ? Option.Some(result) : Option.None<TSource>();
             }
         }
 
