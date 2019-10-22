@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Rusted
 {
@@ -7,12 +10,12 @@ namespace Rusted
         /// <summary>
         /// Initialize a None.
         /// </summary>
-        public static Option<object> None() => new Option<object>();
-        
+        public static Option<object> None() => default;
+
         /// <summary>
         /// Initialize a generic None.
         /// </summary>
-        public static Option<U> None<U>() => new Option<U>();
+        public static Option<U> None<U>() => default;
         
         /// <summary>
         /// Initialize a Some using the given argument.
@@ -44,20 +47,19 @@ namespace Rusted
         /// <para>Transposes an Option of a Result into a Result of an Option.</para>
         /// <para>None will be mapped to Ok(None). Some(Ok(_)) and Some(Err(_)) will be mapped to Ok(Some(_)) and Err(_), respectively.</para>
         /// </summary>
-        public static Result<Option<T>, E> Transpose<T, E>(this Option<Result<T, E>> @this)
-            where E: Exception, new()
+        public static Result<Option<T>> Transpose<T>(this Option<Result<T>> @this)
         {
             if (!@this.some)
             {
-                return new Result<Option<T>, E>(new Option<T>());
+                return new Result<Option<T>>(new Option<T>());
             }
             else if (!@this.wrapped.ok)
             {
-                return new Result<Option<T>, E>(@this.wrapped.error);
+                return new Result<Option<T>>(@this.wrapped.error);
             }
             else
             {
-                return new Result<Option<T>, E>(@this.wrapped.Ok());
+                return new Result<Option<T>>(@this.wrapped.Ok());
             }
         }
 
@@ -72,6 +74,9 @@ namespace Rusted
         /// </summary>
         public static bool Equals(this Option<string> @this, string other, StringComparison stringComparison)
             => (@this.IsNone() && other == null) || (@this.IsSome() && @this.wrapped.Equals(other, stringComparison));
+
+        public static IEnumerable<T> UnwrapOrEmpty<T>(this Option<IEnumerable<T>> @this)
+            => @this.UnwrapOr(Enumerable.Empty<T>());
     }
     
     public struct Option<T> : IEquatable<Option<T>>, IEquatable<T>
@@ -80,7 +85,7 @@ namespace Rusted
 
         internal bool some;
         internal T wrapped;
-        
+
         /// <summary>
         /// Initialize a Some using the given argument.
         /// </summary>
@@ -93,14 +98,58 @@ namespace Rusted
         /// <summary>
         /// Determines whether this option and a specified option have the same value.
         /// </summary>
-        public bool Equals(Option<T> other) => this.wrapped.Equals(other.wrapped);
+        public bool Equals(Option<T> other)
+        {
+            if (!this.some || other.IsNone())
+            {
+                return (!this.some && other.IsNone());
+            }
+            else
+            {
+                return this.wrapped.Equals(other.wrapped);
+            }
+        }
+
+        /// <summary>
+        /// Determines whether this option and a specified option have the same value.
+        /// </summary>
+        public bool Equals<U>(Option<U> other)
+            where U : IEquatable<T>
+        {
+            if (!this.some || other.IsNone())
+            {
+                return (!this.some && other.IsNone());
+            }
+            else
+            {
+                return other.wrapped.Equals(this.wrapped);
+            }
+        }
 
         /// <summary>
         /// Determines whether this option's value is equal to the specified value.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(T other) => this.wrapped.Equals(other);
+        public bool Equals(T other) => this.some && this.wrapped.Equals(other);
+
+        /// <summary>
+        /// Determines whether this option's value is equal to the specified value.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Equals<U>(U other)
+            where U: IEquatable<T>
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            else
+            {
+                return this.some && other.Equals(this.wrapped);
+            }
+        }
 
         /// <summary>
         /// Returns a string that represents the current Option.
@@ -247,32 +296,30 @@ namespace Rusted
         /// <para>Transforms the Option&lt;T&gt; into a Result&lt;T, E&gt;, mapping Some(v) to Ok(v) and None to Err(err).</para>
         /// <para>Arguments passed to OkOr are eagerly evaluated; if you are passing the result of a function call, it is recommended to use <see cref="OkOrElse{E}(Func{E})"/>, which is lazily evaluated.</para>
         /// </summary>
-        public Result<T, E> OkOr<E>(E err) 
-            where E: Exception, new()
+        public Result<T> OkOr(Exception err) 
         {
             if (some)
             {
-                return new Result<T, E>(wrapped);
+                return new Result<T>(wrapped);
             }
             else
             {
-                return new Result<T, E>(err);
+                return new Result<T>(err);
             }
         }
 
         /// <summary>
         /// Transforms the Option&lt;T&gt; into a Result&lt;T, E&gt;, mapping Some(v) to Ok(v) and None to Err(err()).
         /// </summary>
-        public Result<T, E> OkOrElse<E>(Func<E> err)
-            where E: Exception, new()
+        public Result<T> OkOrElse(Func<Exception> err)
         {
             if (some)
             {
-                return new Result<T, E>(wrapped);
+                return new Result<T>(wrapped);
             }
             else
             {
-                return new Result<T, E>(err());
+                return new Result<T>(err());
             }
         }
 
@@ -374,5 +421,16 @@ namespace Rusted
                 }
             }
         }
+
+        /// <summary>
+        /// This method shadow exists as a way to statically prevent developers 
+        /// from accidentally use the Object.Equals method on an Option
+        /// </summary>
+        /// <param name="other">doesn't matter</param>
+        /// <returns>Nothing. You will get an exception if you call this method</returns>
+        /// <exception cref="Exception">Always thrown. Do not use this method</exception>
+        [Obsolete("You accidentally used Object.Equals on an Option. Do not deploy this code.")]
+        public new UnusableObject Equals(object other) => throw new WrongMethodException();
+
     }
 }
