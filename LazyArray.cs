@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -8,67 +9,100 @@ namespace Rusted
 {
     public class LazyArray<T> : IEnumerable<T>
     {
+        public static implicit operator LazyArray<T>(Lazy<T[]> t) => LazyArray.From(() => t.Value);
+        public static implicit operator Lazy<T[]>(LazyArray<T> t) => new Lazy<T[]>(() => t.GetOrEvaluateSource());
+
         public static LazyArray<T> Empty()
             => new LazyArray<T>(Enumerable.Empty<T>());
 
-        readonly Lazy<T[]> Source;
+        Option<T[]> ComputedSource;
+        Option<IEnumerable<T>> LazySource;
+
+        public int Count()
+            => GetOrEvaluateSource().Length;
 
         /// <summary>
         /// Returns a string that represents the current LazyArray.
         /// </summary>
         /// <returns>A string that represents the current LazyArray.</returns>
-        public override string ToString() => Source.Value.ToString();
+        public override string ToString()
+            => $"LazyArray: [ {ComputedSource.Map(array => $"Evaluated: {array.ToString()}").UnwrapOrElse(() => $"Not Evaluated: {LazySource.UnwrapOrEmpty().ToString()}")} ]";
 
         public T this[int index]
         {
-            get => Source.Value[index];
-            set => Source.Value[index] = value;
+            get => GetOrEvaluateSource()[index];
+            set => GetOrEvaluateSource()[index] = value;
         }
 
-        public int Length => Source.Value.Length;
+        private T[] GetOrEvaluateSource()
+            => ComputedSource.UnwrapOrElse(() =>
+            {
+                T[] result = LazySource.Unwrap().ToArray();
+                LazySource = Option.None<IEnumerable<T>>();
+                ComputedSource = Option.Some(result);
+                return result;
+            });
 
         public void CopyTo(T[] array, int index)
-            => Source.Value.CopyTo(array, index);
+            => GetOrEvaluateSource().CopyTo(array, index);
 
         public void CopyTo(T[] array, long index)
-            => Source.Value.CopyTo(array, index);
+            => GetOrEvaluateSource().CopyTo(array, index);
+
 
         public IEnumerator<T> GetEnumerator()
         {
-            // This is done to avoid explicit casting
-            IEnumerable<T> enumerable = Source.Value;
-            return enumerable.GetEnumerator();
+            if (ComputedSource.IsSome())
+            {
+                // this is done to avoid explicit conversion (i.e. potential runtime exception).
+                IEnumerable<T> enumerable = ComputedSource.Unwrap();
+                return enumerable.GetEnumerator();
+            }
+            else
+            {
+                IEnumerator<T> yieldWhileEvaluating()
+                {
+                    List<T> items = new List<T>();
+                    foreach (T item in LazySource.Unwrap())
+                    {
+                        yield return item;
+                        items.Add(item);
+                    }
+
+                    LazySource = Option.None<IEnumerable<T>>();
+                    ComputedSource = items.ToArray();
+                }
+
+                return yieldWhileEvaluating();
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
-            => Source.Value.GetEnumerator();
+            => GetEnumerator();
 
         public LazyArray(IEnumerable<T> source)
         {
-            Source = new Lazy<T[]>(() => source == null ? new T[0] : source.ToArray());
-        }
-
-        public LazyArray(Lazy<T[]> source)
-        {
-            Source = source;
-        }
-
-        internal LazyArray(Func<T[]> generator)
-        {
-            Source = new Lazy<T[]>(generator);
+            if (source is T[] array)
+            {
+                ComputedSource = array;
+            }
+            else
+            {
+                LazySource = Option.Some(source);
+            }
         }
     }
 
     public static class LazyArray
     {
         public static LazyArray<T> Empty<T>()
-            => new LazyArray<T>(Enumerable.Empty<T>());
+            => new LazyArray<T>(new T[0]);
+
+        public static LazyArray<T> From<T>(IEnumerable<T> enumerable)
+            => new LazyArray<T>(enumerable);
 
         public static LazyArray<T> From<T>(Func<IEnumerable<T>> generator)
-            => new LazyArray<T>(() => generator().ToArray());
-
-        public static LazyArray<T> From<T>(Func<T[]> generator)
-            => new LazyArray<T>(generator);
+            => new LazyArray<T>(generator());
 
         public static LazyArray<T> ToLazyArray<T>(this IEnumerable<T> @this)
         {
