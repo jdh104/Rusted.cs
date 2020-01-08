@@ -1,4 +1,7 @@
+
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Rusted
 {
@@ -30,6 +33,9 @@ namespace Rusted
 
         public static bool Equals(this Result<string> @this, string other, StringComparison stringComparison)
             => @this.IsOk() && @this.wrapped.Equals(other, stringComparison);
+
+        public static IEnumerable<T> UnwrapOrEmpty<T>(this Result<IEnumerable<T>> @this)
+            => @this.UnwrapOr(Enumerable.Empty<T>());
     }
 
     public class Result<T> : IEquatable<Result<T>>, IEquatable<T>
@@ -90,7 +96,16 @@ namespace Rusted
         
         public Option<T> Ok() 
             => ok ? new Option<T>(wrapped) : new Option<T>();
-        
+
+        /// <summary>
+        /// <para>Returns the value from the Result, assuming it is not an Err.</para>
+        /// </summary>
+        /// <exception cref="Exception">Thrown if the Result is an Err</exception>
+        /// <seealso cref="UnwrapOr(T)"/>
+        /// <seealso cref="UnwrapOrElse(Func{T})"/>
+        public T Unwrap()
+            => ok ? wrapped : throw new Exception("Tried to call Unwrap() on an Err result.");
+
         public T UnwrapOr(T optb) 
             => ok ? wrapped : optb;
         
