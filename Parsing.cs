@@ -46,7 +46,16 @@ namespace Rusted
         public static Option<BigInteger> ParseBigInteger(this string @this, NumberStyles style = NumberStyles.Integer, IFormatProvider provider = null)
             => BigInteger.TryParse(@this, style, Option.Wrap(provider).UnwrapOr(CultureInfo.InvariantCulture), out BigInteger tmp) ? Option.Some(tmp) : Option.None<BigInteger>();
 
-        public static Option<DateTime> ParseDateTime(this string @this, IFormatProvider provider = null, DateTimeStyles styles = DateTimeStyles.None)
-            => DateTime.TryParse(@this, Option.Wrap(provider).UnwrapOr(CultureInfo.InvariantCulture), styles, out DateTime tmp) ? Option.Some(tmp) : Option.None<DateTime>();
+        public static Option<DateTime> ParseDateTime(this string @this, string format = null, IFormatProvider provider = null, DateTimeStyles styles = DateTimeStyles.None)
+        {
+            if (format == null)
+            {
+                return DateTime.TryParse(@this, Option.Wrap(provider).UnwrapOr(CultureInfo.InvariantCulture), styles, out DateTime tmp) ? Option.Some(tmp) : Option.None<DateTime>();
+            }
+            else
+            {
+                return DateTime.TryParseExact(@this, format, Option.Wrap(provider).UnwrapOr(CultureInfo.InvariantCulture), styles, out DateTime tmp) ? Option.Some(tmp) : Option.None<DateTime>();
+            }
+        }
     }
 }
