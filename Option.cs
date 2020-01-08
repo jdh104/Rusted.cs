@@ -175,6 +175,61 @@ namespace Rusted
         public Option<U> AndThen<U>(Func<T, Option<U>> f) => some ? f(wrapped) : new Option<U>();
 
         /// <summary>
+        /// <para>Returns an enumerable over the possibly contained value.</para>
+        /// <para>The enumerable yields one value if the Option is a Some, otherwise it is empty</para>
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<T> AsEnumerable()
+        {
+            if (some)
+            {
+                yield return wrapped;
+            }
+        }
+
+        /// <summary>
+        /// <para>Casts the Option's wrapped value to another type</para>
+        /// <para>Returns a None if this Option is a None</para>
+        /// </summary>
+        /// <typeparam name="U">The type to cast to</typeparam>
+        /// <returns>Some if this Option is a Some AND the cast is successful, None otherwise</returns>
+        /// <exception cref="InvalidCastException">Thrown if the wrapped value cannot be casted to the given type</exception>
+        public Option<U> ExplicitCast<U>()
+            where U : class
+        {
+            if (!some)
+            {
+                return Option.None<U>();
+            }
+            else
+            {
+                return wrapped as U;
+            }
+        }
+
+        /// <summary>
+        /// <para>Casts the Option's wrapped value to another type</para>
+        /// <para>Returns a None if this Option is a None, or if the cast fails</para>
+        /// </summary>
+        /// <typeparam name="U">The type to cast to</typeparam>
+        /// <returns>Some if this Option is a Some AND the cast is successful, None otherwise</returns>
+        public Option<U> ImplicitCast<U>()
+        {
+            if (!some)
+            {
+                return Option.None<U>();
+            }
+            else if (wrapped is U asCasted)
+            {
+                return Option.Some(asCasted);
+            }
+            else
+            {
+                return Option.None<U>();
+            }
+        }
+
+        /// <summary>
         /// <para>Unwraps an option, yielding the content of a Some.</para>
         /// <para>Throws an exception if the option is a None.</para>
         /// </summary>
@@ -281,6 +336,22 @@ namespace Rusted
                 }
             }
         }
+
+        /// <summary>
+        /// <para>If the option is a None, return a None. Otherwise:</para>
+        /// <para>Maps an Option&lt;T&gt; to Option&lt;string&gt; by applying the <see cref="object.ToString"/> method on the contained value.</para>
+        /// </summary>
+        public Option<string> MapToString()
+            => Map(wrapped => wrapped.ToString());
+
+        /// <summary>
+        /// <para>If the option is a None, return a None. Otherwise:</para>
+        /// <para>Maps an Option&lt;T&gt; to Option&lt;string&gt; by applying the <see cref="string.Format(string, object[])"/> method on the contained value.</para>
+        /// </summary>
+        /// <param name="formatSpecifier">The format string to be passed along to <see cref="string.Format(string, object[])"/></param>
+        /// <returns></returns>
+        public Option<string> MapToString(string formatSpecifier)
+            => Map(wrapped => string.Format($"{{0:{formatSpecifier}}}", wrapped));
 
         /// <summary>
         /// Applies a function to the contained value (if any), or returns the provided default (if not).
@@ -428,9 +499,13 @@ namespace Rusted
         /// </summary>
         /// <param name="other">doesn't matter</param>
         /// <returns>Nothing. You will get an exception if you call this method</returns>
-        /// <exception cref="Exception">Always thrown. Do not use this method</exception>
+        /// <exception cref="WrongMethodException">Always thrown. Do not use this method</exception>
+        /// <seealso cref="Equals(Option{T})"/>
+        /// <seealso cref="Equals(T)"/>
+        /// <seealso cref="Equals{U}(Option{U})"/>
+        /// <seealso cref="Equals{U}(U)"/>
         [Obsolete("You accidentally used Object.Equals on an Option. Do not deploy this code.")]
-        public new UnusableObject Equals(object other) => throw new WrongMethodException();
-
+        public new UnusableObject Equals(object other) 
+            => throw new WrongMethodException();
     }
 }
