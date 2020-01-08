@@ -1,15 +1,34 @@
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Rusted
 {
     public static class ObjectExtensions
     {
-        public static bool EqualsAny<T, U>(this T @this, params U[] others)
-            where T: IEquatable<U>
+        public static bool EqualsAny<T, U>(this T @this, IEnumerable<U> others)
+            where T : IEquatable<U>
         {
             return others.Any(other => @this.Equals(other));
+        }
+
+        public static bool EqualsAny<T, U>(this T @this, params U[] others)
+            where T : IEquatable<U>
+        {
+            return others.Any(other => @this.Equals(other));
+        }
+
+        public static bool EqualsAll<T, U>(this T @this, IEnumerable<U> others)
+            where T : IEquatable<U>
+        {
+            return others.All(other => @this.Equals(other));
+        }
+
+        public static bool EqualsAll<T, U>(this T @this, params U[] others)
+            where T : IEquatable<U>
+        {
+            return others.All(other => @this.Equals(other));
         }
 
         public static T Or<T>(this T @this, T alt)
@@ -36,9 +55,23 @@ namespace Rusted
             }
         }
 
-        public static Option<T> Not<T>(this T @this, T other)
+        public static Option<T> Not<T, U>(this T @this, U other)
+            where T : IEquatable<U>
         {
             if (@this.Equals(other))
+            {
+                return Option.None<T>();
+            }
+            else
+            {
+                return Option.Some(@this);
+            }
+        }
+
+        public static Option<T> NotAny<T, U>(this T @this, params U[] others)
+            where T : IEquatable<U>
+        {
+            if (@this.EqualsAny(others))
             {
                 return Option.None<T>();
             }
@@ -72,6 +105,17 @@ namespace Rusted
                 default:
                     return @this;
             }
+        }
+
+        /// <summary>
+        /// Convert a single object to an IEnumerable containing only that object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="this"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Yield<T>(this T @this)
+        {
+            yield return @this;
         }
     }
 }
