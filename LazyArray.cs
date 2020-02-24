@@ -84,7 +84,9 @@ namespace Rusted
         {
             if (source is T[] array)
             {
-                ComputedSource = array;
+                T[] tmp = new T[array.Length];
+                array.CopyTo(tmp, 0);
+                ComputedSource = tmp;
             }
             else
             {
@@ -106,14 +108,7 @@ namespace Rusted
 
         public static LazyArray<T> ToLazyArray<T>(this IEnumerable<T> @this)
         {
-            switch (@this)
-            {
-                case LazyArray<T> lazy:
-                    return lazy;
-
-                default:
-                    return new LazyArray<T>(@this);
-            }
+            return new LazyArray<T>(@this);
         }
     }
 }
