@@ -31,6 +31,12 @@ namespace Rusted
             return others.All(other => @this.Equals(other));
         }
 
+        public static bool EqualsEquals<T, U>(this T @this, U other)
+            where U : IEquatable<T>
+        {
+            return @this.Equals(other);
+        }
+
         public static T Or<T>(this T @this, T alt)
         {
             if (@this.Equals(default(T)))

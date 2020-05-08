@@ -55,12 +55,35 @@ namespace Rusted
             }
         }
         
-        public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.First() : def;
+        public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, TSource def)
+        {
+            foreach (TSource item in @this)
+            {
+                return item;
+            }
+
+            return def;
+        }
         
-        public static TSource FirstOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback) => @this.Any() ? @this.First() : fallback();
+        public static TSource FirstOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback)
+        {
+            foreach (TSource item in @this)
+            {
+                return item;
+            }
+
+            return fallback();
+        }
 
         public static Option<TSource> FirstOrNone<TSource>(this IEnumerable<TSource> @this)
-            => @this.Any() ? Option.Some(@this.First()) : Option.None<TSource>();
+        {
+            foreach (TSource item in @this)
+            {
+                return item;
+            }
+
+            return Option.None<TSource>();
+        }
         
         public static TSource FirstOr<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, TSource def)
         {

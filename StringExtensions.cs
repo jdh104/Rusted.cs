@@ -70,6 +70,17 @@ namespace Rusted
         /// <param name="comparison"></param>
         /// <param name="others"></param>
         /// <returns></returns>
+        public static bool EqualsAny(this string @this, IEnumerable<string> others, StringComparison comparison = StringComparison.InvariantCulture)
+            => others.Any(other => @this.Equals(other, comparison));
+
+        /// <summary>
+        /// Check if this string is equal to any of a set of other strings. Parameters specify the StringComparison
+        /// type to use.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="comparison"></param>
+        /// <param name="others"></param>
+        /// <returns></returns>
         public static bool EqualsAny(this string @this, StringComparison comparison = StringComparison.InvariantCulture, params string[] others)
             => others.Any(other => @this.Equals(other, comparison));
 
@@ -204,6 +215,26 @@ namespace Rusted
 
             yield return @this.Substring(previousIndex);
         }
+
+        /// <summary>
+        /// Check if this string starts with any of a number of arguments.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static bool StartsWithAny(this string @this, IEnumerable<string> query)
+            => query.Any(str => @this.StartsWith(str));
+
+        /// <summary>
+        /// Check if this string starts with any of a number of arguments. A parameter can be 
+        /// used to specify what type of StringComparison to use.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="comparison"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static bool StartsWithAny(this string @this, IEnumerable<string> query, StringComparison comparison)
+            => query.Any(str => @this.StartsWith(str, comparison));
 
         /// <summary>
         /// Check if this string starts with any of a number of arguments.
