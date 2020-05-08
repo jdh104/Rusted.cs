@@ -320,6 +320,14 @@ namespace Rusted
             }
         }
 
+        public static IEnumerable<T> YieldToEnd<T>(this IEnumerator<T> @this)
+        {
+            while (@this.MoveNext())
+            {
+                yield return @this.Current;
+            }
+        }
+
         public static IEnumerable<System.Text.RegularExpressions.Match> ToEnumerable(this System.Text.RegularExpressions.MatchCollection @this)
             => @this.Cast<System.Text.RegularExpressions.Match>();
 

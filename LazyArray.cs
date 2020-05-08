@@ -15,8 +15,9 @@ namespace Rusted
         public static LazyArray<T> Empty()
             => new LazyArray<T>(Enumerable.Empty<T>());
 
-        Option<T[]> ComputedSource;
-        Option<IEnumerable<T>> LazySource;
+        T[] FullyComputedSource;
+        List<T> ComputedPart;
+        IEnumerator<T> NonComputedPart;
 
         public int Count()
             => GetOrEvaluateSource().Length;
@@ -26,22 +27,25 @@ namespace Rusted
         /// </summary>
         /// <returns>A string that represents the current LazyArray.</returns>
         public override string ToString()
-            => $"LazyArray: [ {ComputedSource.Map(array => $"Evaluated: {array.ToString()}").UnwrapOrElse(() => $"Not Evaluated: {LazySource.UnwrapOrEmpty().ToString()}")} ]";
+            => $"LazyArray: [ {(IsValueComputed ? $"Evaluated: {FullyComputedSource}" : "Not yet evaluated")} ]";
 
         public T this[int index]
         {
-            get => GetOrEvaluateSource()[index];
+            get => this.Skip(index).FirstOrElse(() => throw new IndexOutOfRangeException());
             set => GetOrEvaluateSource()[index] = value;
         }
 
+        public bool IsValueComputed => FullyComputedSource != null;
+
         private T[] GetOrEvaluateSource()
-            => ComputedSource.UnwrapOrElse(() =>
+        {
+            if (FullyComputedSource == null)
             {
-                T[] result = LazySource.Unwrap().ToArray();
-                LazySource = Option.None<IEnumerable<T>>();
-                ComputedSource = Option.Some(result);
-                return result;
-            });
+                FullyComputedSource = ComputedPart.Concat(NonComputedPart.YieldToEnd()).ToArray();
+            }
+
+            return FullyComputedSource;
+        }
 
         public void CopyTo(T[] array, int index)
             => GetOrEvaluateSource().CopyTo(array, index);
@@ -49,31 +53,47 @@ namespace Rusted
         public void CopyTo(T[] array, long index)
             => GetOrEvaluateSource().CopyTo(array, index);
 
-
-        public IEnumerator<T> GetEnumerator()
+        private IEnumerator<T> YieldWhileEvaluating()
         {
-            if (ComputedSource.IsSome())
+            if (FullyComputedSource == null)
             {
-                // this is done to avoid explicit conversion (i.e. potential runtime exception).
-                IEnumerable<T> enumerable = ComputedSource.Unwrap();
-                return enumerable.GetEnumerator();
+                foreach (T previouslyComputedItem in ComputedPart)
+                {
+                    yield return previouslyComputedItem;
+                }
+
+                foreach (T newlyComputedItem in NonComputedPart.YieldToEnd())
+                {
+                    // it is imperative that we add before yielding
+                    ComputedPart.Add(newlyComputedItem);
+                    yield return newlyComputedItem;
+                }
+
+                FullyComputedSource = ComputedPart.ToArray();
             }
             else
             {
-                IEnumerator<T> yieldWhileEvaluating()
+                ComputedPart = null;
+                NonComputedPart = null;
+
+                foreach (T computedItem in FullyComputedSource)
                 {
-                    List<T> items = new List<T>();
-                    foreach (T item in LazySource.Unwrap())
-                    {
-                        yield return item;
-                        items.Add(item);
-                    }
-
-                    LazySource = Option.None<IEnumerable<T>>();
-                    ComputedSource = items.ToArray();
+                    yield return computedItem;
                 }
+            }
+        }
 
-                return yieldWhileEvaluating();
+        public IEnumerator<T> GetEnumerator()
+        {
+            if (FullyComputedSource == null)
+            {
+                return YieldWhileEvaluating();
+            }
+            else
+            {
+                // this is done to avoid explicit conversion (i.e. potential runtime exception).
+                IEnumerable<T> enumerable = FullyComputedSource;
+                return enumerable.GetEnumerator();
             }
         }
 
@@ -84,13 +104,15 @@ namespace Rusted
         {
             if (source is T[] array)
             {
-                T[] tmp = new T[array.Length];
-                array.CopyTo(tmp, 0);
-                ComputedSource = tmp;
+                // do not keep reference of array, make copy
+                FullyComputedSource = new T[array.Length];
+                array.CopyTo(FullyComputedSource, 0);
+                Lazy<int> a = new Lazy<int>(() => 1);
             }
             else
             {
-                LazySource = Option.Some(source);
+                ComputedPart = new List<T>();
+                NonComputedPart = source.GetEnumerator();
             }
         }
     }
