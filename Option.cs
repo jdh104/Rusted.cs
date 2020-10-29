@@ -75,6 +75,12 @@ namespace Rusted
         public static bool Equals(this Option<string> @this, string other, StringComparison stringComparison)
             => (@this.IsNone() && other == null) || (@this.IsSome() && @this.wrapped.Equals(other, stringComparison));
 
+        //public static IEnumerable<S> UnwrapOrEmpty<T, S>(this Option<T> @this)
+        //    where T : IEnumerable<S>
+        //{
+        //    return @this.Map(enumerable => enumerable.AsEnumerable()).UnwrapOr(Enumerable.Empty<S>());
+        //}
+
         public static IEnumerable<T> UnwrapOrEmpty<T>(this Option<IEnumerable<T>> @this)
             => @this.UnwrapOr(Enumerable.Empty<T>());
     }
@@ -451,7 +457,7 @@ namespace Rusted
         /// <exception cref="Exception">Thrown if the option is a None</exception>
         /// <seealso cref="UnwrapOr(T)"/>
         /// <seealso cref="UnwrapOrElse(Func{T})"/>
-        public T Unwrap() => some ? wrapped : throw new Exception("Tried to call Unwrap() on a None option.");
+        public T Unwrap() => some ? wrapped : throw new Exception($"Tried to call Unwrap() on a None Option<{typeof(T).FullName}>");
 
         /// <summary>
         /// <para>Returns the contained value or a default.</para>
@@ -495,7 +501,7 @@ namespace Rusted
 
         /// <summary>
         /// This method shadow exists as a way to statically prevent developers 
-        /// from accidentally use the Object.Equals method on an Option
+        /// from accidentally using the Object.Equals method on an Option
         /// </summary>
         /// <param name="other">doesn't matter</param>
         /// <returns>Nothing. You will get an exception if you call this method</returns>

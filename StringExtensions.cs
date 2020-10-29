@@ -50,8 +50,7 @@ namespace Rusted
 
         /// <summary>
         /// Returns a value indicating whether at least one of many specified substrings occurs within this string. 
-        /// Parameters specify the starting search position in the current string, the number of characters in 
-        /// the current string to search, and the type of search to use for the specified string.
+        /// Parameters specify the type of search to use for the specified string.
         /// </summary>
         /// <param name="this"></param>
         /// <param name="query"></param>

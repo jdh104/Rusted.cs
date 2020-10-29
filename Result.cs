@@ -34,6 +34,12 @@ namespace Rusted
         public static bool Equals(this Result<string> @this, string other, StringComparison stringComparison)
             => @this.IsOk() && @this.wrapped.Equals(other, stringComparison);
 
+        //public static IEnumerable<S> UnwrapOrEmpty<T, S>(this Result<T> @this)
+        //    where T : IEnumerable<S>
+        //{
+        //    return @this.Map(enumerable => enumerable.AsEnumerable()).UnwrapOr(Enumerable.Empty<S>());
+        //}
+
         public static IEnumerable<T> UnwrapOrEmpty<T>(this Result<IEnumerable<T>> @this)
             => @this.UnwrapOr(Enumerable.Empty<T>());
     }

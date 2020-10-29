@@ -1,7 +1,7 @@
 ﻿
 namespace Rusted
 {
-    [System.Obsolete("This is a compile-time check to prevent you from accidentally use the wrong version of a method")]
+    [System.Obsolete("This is a compile-time check to prevent you from accidentally using the wrong version of a method")]
     public class UnusableObject
     {
         public UnusableObject()

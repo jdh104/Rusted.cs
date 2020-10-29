@@ -121,22 +121,24 @@ namespace Rusted
             return Option.None<TSource>();
         }
 
-        public static bool IsSingle<TSource>(this IEnumerable<TSource> @this)
-            => @this.Take(2).Count() == 1;
-
         public static bool IsSingle<TSource>(this ICollection<TSource> @this)
             => @this.Count == 1;
 
         public static bool IsSingle<TSource>(this TSource[] @this)
             => @this.Length == 1;
 
-        public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, TSource def) => @this.Any() ? @this.Last() : def;
-        
-        public static TSource LastOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback) => @this.Any() ? @this.Last() : fallback();
+        private static TSource LastOrInternal<TSource>(this TSource[] @this, TSource def)
+            => @this.Any() ? @this.Last() : def;
+
+        public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, TSource def)
+            => @this.ToArray().LastOrInternal(def);
+
+        private static Option<TSource> LastOrNoneInternal<TSource>(this TSource[] @this)
+            => @this.Any() ? Option.Some(@this.Last()) : Option.None<TSource>();
 
         public static Option<TSource> LastOrNone<TSource>(this IEnumerable<TSource> @this)
-            => @this.Any() ? Option.Some(@this.Last()) : Option.None<TSource>();
-        
+            => @this.ToArray().LastOrNoneInternal();
+
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, TSource def)
         {
             switch (@this)
@@ -270,11 +272,17 @@ namespace Rusted
             }
         }
 
-        public static Option<TSource> MinOrNone<TSource>(this IEnumerable<TSource> @this)
+        private static Option<TSource> MinOrNoneInternal<TSource>(this TSource[] @this)
             => @this.Any() ? @this.Min() : Option.None<TSource>();
 
-        public static Option<TSource> MaxOrNone<TSource>(this IEnumerable<TSource> @this)
+        public static Option<TSource> MinOrNone<TSource>(this IEnumerable<TSource> @this)
+            => @this.ToArray().MinOrNoneInternal();
+
+        private static Option<TSource> MaxOrNoneInternal<TSource>(this TSource[] @this)
             => @this.Any() ? @this.Max() : Option.None<TSource>();
+
+        public static Option<TSource> MaxOrNone<TSource>(this IEnumerable<TSource> @this)
+            => @this.ToArray().MaxOrNoneInternal();
 
         public static bool AnyAndAll<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate) => @this.Any() && @this.All(predicate);
 
