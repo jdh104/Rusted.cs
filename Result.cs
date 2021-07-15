@@ -114,8 +114,11 @@ namespace Rusted
 
         public T UnwrapOr(T optb) 
             => ok ? wrapped : optb;
-        
-        public T UnwrapOrElse(Func<T> op) 
+
+        public T UnwrapOrElse(Func<T> op)
             => ok ? wrapped : op();
+
+        public T UnwrapOrElse(Func<Exception, T> op)
+            => ok ? wrapped : op(error);
     }
 }

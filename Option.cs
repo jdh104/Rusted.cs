@@ -25,6 +25,7 @@ namespace Rusted
         /// <summary>
         /// Initialize a None if the given argument is null, otherwise initialize a Some.
         /// </summary>
+        /// <remarks>Thought about adding "where U : class" clause but rejected due to added complexity for no real value</remarks>
         public static Option<U> Wrap<U>(U value) => value == null ? new Option<U>() : new Option<U>(value);
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace Rusted
         /// Returns a string that represents the current Option.
         /// </summary>
         /// <returns>A string that represents the current Option.</returns>
-        public override string ToString() => some ? $"Some({wrapped.ToString()})" : "None";
+        public override string ToString() => some ? $"Some({wrapped})" : "None";
 
         /// <summary>
         /// Returns None if the option is None, otherwise returns optb
@@ -342,7 +343,7 @@ namespace Rusted
                 }
             }
         }
-
+        
         /// <summary>
         /// <para>If the option is a None, return a None. Otherwise:</para>
         /// <para>Maps an Option&lt;T&gt; to Option&lt;string&gt; by applying the <see cref="object.ToString"/> method on the contained value.</para>

@@ -19,6 +19,9 @@ namespace Rusted
         public static bool ContainsAny<T>(this IEnumerable<T> @this, params IEquatable<T>[] others)
             => others.Any(other => other.EqualsAny(@this));
 
+        public static bool ContainsAnyKey<TK, TV>(this IDictionary<TK, TV> @this, params IEquatable<TK>[] queries)
+            => @this.Keys.Any(key => queries.Any(query => key.Equals(query)));
+
         public static IEnumerable<string> Distinct(this IEnumerable<string> @this, StringComparison comparisonStrategy)
         {
             if (@this == null)
@@ -127,17 +130,17 @@ namespace Rusted
         public static bool IsSingle<TSource>(this TSource[] @this)
             => @this.Length == 1;
 
-        private static TSource LastOrInternal<TSource>(this TSource[] @this, TSource def)
+        private static TSource LastOrInternal<TSource>(this ICollection<TSource> @this, TSource def)
             => @this.Any() ? @this.Last() : def;
 
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, TSource def)
-            => @this.ToArray().LastOrInternal(def);
+            => @this.ToList().LastOrInternal(def);
 
-        private static Option<TSource> LastOrNoneInternal<TSource>(this TSource[] @this)
+        private static Option<TSource> LastOrNoneInternal<TSource>(this ICollection<TSource> @this)
             => @this.Any() ? Option.Some(@this.Last()) : Option.None<TSource>();
 
         public static Option<TSource> LastOrNone<TSource>(this IEnumerable<TSource> @this)
-            => @this.ToArray().LastOrNoneInternal();
+            => @this.ToList().LastOrNoneInternal();
 
         public static TSource LastOr<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate, TSource def)
         {
@@ -235,8 +238,8 @@ namespace Rusted
 
         public static TSource SingleOr<TSource>(this IEnumerable<TSource> @this, TSource def)
         {
-            TSource[] sample = @this.Take(2).ToArray();
-            if (sample.Length != 1)
+            var sample = @this.Take(2).ToList();
+            if (sample.Count != 1)
             {
                 return def;
             }
@@ -248,8 +251,8 @@ namespace Rusted
 
         public static TSource SingleOrElse<TSource>(this IEnumerable<TSource> @this, Func<TSource> fallback)
         {
-            TSource[] sample = @this.Take(2).ToArray();
-            if (sample.Length != 1)
+            var sample = @this.Take(2).ToList();
+            if (sample.Count != 1)
             {
                 return fallback();
             }
@@ -261,8 +264,8 @@ namespace Rusted
 
         public static Option<TSource> SingleOrNone<TSource>(this IEnumerable<TSource> @this)
         {
-            TSource[] sample = @this.Take(2).ToArray();
-            if (sample.Length != 1)
+            var sample = @this.Take(2).ToList();
+            if (sample.Count != 1)
             {
                 return Option.None<TSource>();
             }
@@ -272,26 +275,26 @@ namespace Rusted
             }
         }
 
-        private static Option<TSource> MinOrNoneInternal<TSource>(this TSource[] @this)
+        private static Option<TSource> MinOrNoneInternal<TSource>(this ICollection<TSource> @this)
             => @this.Any() ? @this.Min() : Option.None<TSource>();
 
         public static Option<TSource> MinOrNone<TSource>(this IEnumerable<TSource> @this)
-            => @this.ToArray().MinOrNoneInternal();
+            => @this.ToList().MinOrNoneInternal();
 
-        private static Option<TSource> MaxOrNoneInternal<TSource>(this TSource[] @this)
+        private static Option<TSource> MaxOrNoneInternal<TSource>(this ICollection<TSource> @this)
             => @this.Any() ? @this.Max() : Option.None<TSource>();
 
         public static Option<TSource> MaxOrNone<TSource>(this IEnumerable<TSource> @this)
-            => @this.ToArray().MaxOrNoneInternal();
+            => @this.ToList().MaxOrNoneInternal();
 
         public static bool AnyAndAll<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate) => @this.Any() && @this.All(predicate);
 
         public static IEnumerable<Option<T>> GetSomes<T>(this IEnumerable<Option<T>> @this)
             => @this.Where(option => option.IsSome());
 
-        public static Result<IEnumerable<TSource>> Slice<TSource>(this TSource[] @this, int startIndex = 0, Option<int> endIndex = default)
+        public static Result<IEnumerable<TSource>> Slice<TSource>(this ICollection<TSource> @this, int startIndex = 0, Option<int> endIndex = default)
         {
-            if (Math.Abs(startIndex) > @this.Length || Math.Abs(endIndex.GetOrInsert(@this.Length)) > @this.Length)
+            if (Math.Abs(startIndex) > @this.Count || Math.Abs(endIndex.GetOrInsert(@this.Count)) > @this.Count)
             {
                 return new IndexOutOfRangeException();
             }
@@ -301,7 +304,7 @@ namespace Rusted
 
                 if (startIndex < 0)
                 {
-                    sliceStartIndex = @this.Length + startIndex;
+                    sliceStartIndex = @this.Count + startIndex;
                 }
                 else
                 {
@@ -310,7 +313,7 @@ namespace Rusted
 
                 if (endIndex.Unwrap() < 0)
                 {
-                    sliceLength = @this.Length + endIndex.Unwrap() - sliceStartIndex;
+                    sliceLength = @this.Count + endIndex.Unwrap() - sliceStartIndex;
                 }
                 else
                 {

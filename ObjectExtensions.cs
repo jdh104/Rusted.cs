@@ -87,6 +87,14 @@ namespace Rusted
             }
         }
 
+        /// <summary>
+        /// If this is greater than other, return this, else return other.
+        /// This is useful when setting some kind of minimum limit.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="this"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public static T AtLeast<T>(this T @this, T other)
             where T: IComparable<T>
         {
@@ -100,6 +108,14 @@ namespace Rusted
             }
         }
 
+        /// <summary>
+        /// If this is less than other, return this, else return other.
+        /// This is useful when setting some kind of maximum limit.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="this"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public static T AtMost<T>(this T @this, T other)
             where T: IComparable<T>
         {
